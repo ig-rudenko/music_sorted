@@ -8,6 +8,7 @@ from sys import argv
 path = input("Укажите директорию для сортировки: ")
 music_list = os.listdir(path)
 for track in music_list:
+    print(track)
     # FLAC
     if str(findall(r".+\.(\S+)", track)) == "['flac']":
         tags_flac = mutagen.flac.FLAC(f"music\\{track}")        # Вытягиваем теги
@@ -20,7 +21,7 @@ for track in music_list:
         if not os.path.exists(f"{path}\\{artist_flac}\\[{year_flac}] {album_flac}"): # Если папка с альбомом НЕ создана, то...
             os.makedirs(f"{path}\\{artist_flac}\\[{year_flac}] {album_flac}")   # ...создаем
             print(f"Была создана папка: music\\{artist_flac}\\[{year_flac}] {album_flac}")
-        os.replace(f"{path}\\{track}", f"music\\{artist_flac}\\[{year_flac}] {album_flac}\\{track}")  # Перемещаем файл
+        os.replace(f"{path}\\{track}", f"{path}\\{artist_flac}\\[{year_flac}] {album_flac}\\{track}")  # Перемещаем файл
         print(f"Файл {track} был перемещен в папку {path}\\{artist_flac}\\[{year_flac}] {album_flac}")
 
     # MP3

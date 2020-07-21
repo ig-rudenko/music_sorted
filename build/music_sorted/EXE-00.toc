@@ -42,7 +42,7 @@
  [],
  False,
  False,
- 1595366986,
+ 1595367537,
  [('run.exe',
    'c:\\users\\igor\\music_sorted\\lib\\site-packages\\PyInstaller\\bootloader\\Windows-64bit\\run.exe',
    'EXECUTABLE')])
