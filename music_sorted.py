@@ -6,7 +6,7 @@ from re import findall
 from sys import argv
 
 
-music_list = os.listdir(argv[1])
+music_list = os.listdir(input("Укажите директорию для сортировки: "))
 for track in music_list:
 
     # FLAC
