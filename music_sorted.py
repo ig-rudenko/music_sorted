@@ -20,7 +20,7 @@ for track in music_list:
 
         if not os.path.exists(f"{path}\\{artist_flac}\\[{year_flac}] {album_flac}"): # Если папка с альбомом НЕ создана, то...
             os.makedirs(f"{path}\\{artist_flac}\\[{year_flac}] {album_flac}")   # ...создаем
-            print(f"Была создана папка: music\\{artist_flac}\\[{year_flac}] {album_flac}")
+            print(f"Была создана папка: {path}\\{artist_flac}\\[{year_flac}] {album_flac}")
         os.replace(f"{path}\\{track}", f"{path}\\{artist_flac}\\[{year_flac}] {album_flac}\\{track}")  # Перемещаем файл
         print(f"Файл {track} был перемещен в папку {path}\\{artist_flac}\\[{year_flac}] {album_flac}")
 
