@@ -17,11 +17,11 @@ for track in music_list:
         year_flac = str([line.split("=")[1] for line in tags_flac_str if "DATE=" in line])[2:-2]  # Переменная "Год (Альбома)"
         artist_flac = str([line.split("=")[1] for line in tags_flac_str if "ALBUMARTIST=" in line])[2:-2]  # Переменная "Артист"
 
-        if not os.path.exists(f"{os.getcwd()}\\{path}\\{artist_flac}\\[{year_flac}] {album_flac}"): # Если папка с альбомом НЕ создана, то...
-            os.makedirs(f"{os.getcwd()}\\{path}\\{artist_flac}\\[{year_flac}] {album_flac}")   # ...создаем
+        if not os.path.exists(f"{path}\\{artist_flac}\\[{year_flac}] {album_flac}"): # Если папка с альбомом НЕ создана, то...
+            os.makedirs(f"{path}\\{artist_flac}\\[{year_flac}] {album_flac}")   # ...создаем
             print(f"Была создана папка: music\\{artist_flac}\\[{year_flac}] {album_flac}")
-        os.replace(f"{os.getcwd()}\\{path}\\{track}", f"music\\{artist_flac}\\[{year_flac}] {album_flac}\\{track}")  # Перемещаем файл
-        print(f"Файл {track} был перемещен в папку {os.getcwd()}\\{path}\\{artist_flac}\\[{year_flac}] {album_flac}")
+        os.replace(f"{path}\\{track}", f"music\\{artist_flac}\\[{year_flac}] {album_flac}\\{track}")  # Перемещаем файл
+        print(f"Файл {track} был перемещен в папку {path}\\{artist_flac}\\[{year_flac}] {album_flac}")
 
     # MP3
     if str(findall(r".+\.(\S+)", track)) == "['mp3']":
@@ -32,9 +32,9 @@ for track in music_list:
         year_mp3 = str([line.split("=")[1] for line in tags_mp3 if "TDRC=" in line])[2:-2]      # Переменная "Год (Альбома)"
         artist_mp3 = str([line.split("=")[1] for line in tags_mp3 if "TPE1=" in line])[2:-2]    # Переменная "Артист"
 
-        if not os.path.exists(f"{os.getcwd()}\\{path}\\{artist_mp3}\\[{year_mp3}] {album_mp3}"): # Если папка с альбомом НЕ создана, то...
-            os.makedirs(f"{os.getcwd()}\\{path}\\{artist_mp3}\\[{year_mp3}] {album_mp3}")   # ...создаем
-            print(f"Была создана папка: {os.getcwd()}\\{path}\\{artist_mp3}\\[{year_mp3}] {album_mp3}")
-        os.replace(f"music\\{track}", f"{os.getcwd()}\\{path}\\{artist_mp3}\\[{year_mp3}] {album_mp3}\\{track}")  # Перемещаем файл
-        print(f"Файл {track} был перемещен в папку {os.getcwd()}\\{path}\\{artist_mp3}\\[{year_mp3}] {album_mp3}")
+        if not os.path.exists(f"{path}\\{artist_mp3}\\[{year_mp3}] {album_mp3}"): # Если папка с альбомом НЕ создана, то...
+            os.makedirs(f"{path}\\{artist_mp3}\\[{year_mp3}] {album_mp3}")   # ...создаем
+            print(f"Была создана папка: {path}\\{artist_mp3}\\[{year_mp3}] {album_mp3}")
+        os.replace(f"{path}\\{track}", f"{path}\\{artist_mp3}\\[{year_mp3}] {album_mp3}\\{track}")  # Перемещаем файл
+        print(f"Файл {track} был перемещен в папку {path}\\{artist_mp3}\\[{year_mp3}] {album_mp3}")
 
