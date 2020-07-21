@@ -39,3 +39,4 @@ for track in music_list:
         os.replace(f"{path}\{track}", f"{path}\{artist_mp3}\[{year_mp3}] {album_mp3}\{track}")  # Перемещаем файл
         print(f"Файл {track} был перемещен в папку {path}\{artist_mp3}\[{year_mp3}] {album_mp3}")
 
+input("Нажмите любую клавишу для выхода.")
