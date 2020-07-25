@@ -171,4 +171,4 @@ def remove_files_from_dir(path, is_album, album_name=''):
 
 
 list_dir()
-
+input("Нажмите Enter, чтобы выйти...")
