@@ -70,7 +70,6 @@ def list_dir(path=ROOT_DIR):
             print("ALBUM!")
             remove_files_from_dir(path, True, album_name=album_name)    # Данная папка это "Альбом"
 
-
     for dir_ in dir_list:
         if os.path.isdir(f"{path}{SL}{dir_}"):                     # Если это папка, то...
             print(f"DIR: {dir_}")
