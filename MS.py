@@ -69,6 +69,8 @@ def list_dir(path=ROOT_DIR):
         if album_name:
             print("ALBUM!")
             remove_files_from_dir(path, True, album_name=album_name)    # Данная папка это "Альбом"
+        else:
+            print("Теги не ")
 
     for dir_ in dir_list:
         if os.path.isdir(f"{path}{SL}{dir_}"):                     # Если это папка, то...
@@ -151,7 +153,7 @@ def remove_files_from_dir(path, is_album, album_name=''):
                         os.makedirs(end_dir)                                     # ...создаем
                         print(f"Была создана папка: {end_dir}")
                     os.replace(f"{path}{SL}{file}", f"{end_dir}{SL}{file}")  # Перемещаем
-                    if os.path.isdir(f"{path}{SL}{file}"):
+                    if os.path.isdir(f"{path}{SL}{file.strip()}"):
                         print(f"Папка {file} была перемещена в папку {end_dir}")
                     else:
                         print(f"Файл {file} был перемещен в папку {end_dir}")
