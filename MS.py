@@ -5,7 +5,8 @@ import mutagen
 from re import findall
 from sys import argv
 
-ROOT_DIR = "C:\\Users\\Igor\\PycharmProjects\\music_sorted\\music"
+# ROOT_DIR = "C:\\Users\\Igor\\PycharmProjects\\music_sorted\\music"
+ROOT_DIR = input("Введите полный путь до папки: ")
 
 if os.name == "nt":     # Если ОС - Windows
     SL = "\\"
@@ -73,7 +74,6 @@ def list_dir(path=ROOT_DIR):
             print(f"DIR: {dir_}")
             list_dir(path=f"{path}{SL}{dir_}")                         # ...рекурсия
 
-    return 1            # Работа программы закончена.
 
 
 def remove_files_from_dir(path, is_album, album_name=''):
@@ -166,5 +166,5 @@ def remove_files_from_dir(path, is_album, album_name=''):
         os.replace(path, f'{ROOT_DIR}{SL}Compilations{SL}{curr_dir}')       # Перемещаем папку с музыкой в Compilations
 
 
-
 list_dir()
+
