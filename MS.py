@@ -158,6 +158,9 @@ def remove_files_from_dir(path, is_album, album_name=''):
 
                 except Exception as e:
                     print(e)
+            else:
+                os.rmdir(path)
+
 
     else:
         if not os.path.exists(f"{ROOT_DIR}{SL}Compilations"):               # Если нет папки "Compilations", то...
