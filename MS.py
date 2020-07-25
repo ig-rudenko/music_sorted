@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import mutagen.flac
 import mutagen.mp3
@@ -73,7 +74,6 @@ def list_dir(path=ROOT_DIR):
         if os.path.isdir(f"{path}{SL}{dir_}"):                     # Если это папка, то...
             print(f"DIR: {dir_}")
             list_dir(path=f"{path}{SL}{dir_}")                         # ...рекурсия
-
 
 
 def remove_files_from_dir(path, is_album, album_name=''):
@@ -164,6 +164,7 @@ def remove_files_from_dir(path, is_album, album_name=''):
             os.makedirs(f"{ROOT_DIR}{SL}Compilations")                          # ...создаем
         *_, curr_dir = str(path).split(SL)                                  # Вытягиваем название папки с музыкой
         os.replace(path, f'{ROOT_DIR}{SL}Compilations{SL}{curr_dir}')       # Перемещаем папку с музыкой в Compilations
+        print(f"Была создана компиляция {curr_dir} в папке {ROOT_DIR}{SL}Compilations")
 
 
 list_dir()
