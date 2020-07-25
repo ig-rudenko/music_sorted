@@ -47,5 +47,6 @@ for track in music_list:
     except Exception as e:
         print(e)
 
+
 input("Нажмите Enter для выхода.")
 
