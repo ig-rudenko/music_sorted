@@ -10,6 +10,8 @@ import mutagen.flac
 import mutagen.mp3
 import mutagen
 from re import findall
+from tkinter import *
+from tkinter import filedialog as fd
 
 if os.name == "nt":     # Если ОС - Windows
     SL = "\\"
@@ -187,6 +189,12 @@ def remove_files_from_dir(path, is_album, album_name=''):
         except Exception as e:
             print(e)
 
+    # Удаляем пустую папку
+    # try:
+    #     os.rmdir(path)
+    # except Exception:
+    #     print(f"В папке {path} остались файлы")
+
 
 # ---------------------------------------------НЕЗАВИСИМАЯ СОРТИРОВКА---------------------------------------------------
 
@@ -306,19 +314,46 @@ def replace_file_by_tags(path, track, artist, year, album, tab):
 # -----------------------------------------------------СТАРТ------------------------------------------------------------
 
 
+def menu_1():
+    menu = Menu(window)
+    new_item = Menu(menu, tearoff=0)
+    new_item.add_command(label='Новый')
+    new_item.add_separator()
+    new_item.add_command(label='Изменить')
+    menu.add_cascade(label='Файл', menu=new_item)
+    window.config(menu=menu)
+    window.mainloop()
+
+
+def open_folder():
+    file_name = fd.askopenfilename()
+    
+
+
 if __name__ == "__main__":
-    welcome()
-    ROOT_DIR = input("Введите полный путь до папки: ")
-    sort_type = input("Выполнить сортировку как для 'сборников'? [y/n]: ").upper()
-    check_folder_delete = input("Удалить пустые папки после перемещения? [Y/n]").upper()
-    if sort_type == 'Y':
-        print("\n", "_"*10, "Выполняем сортировку типа 'Сборник'", "_"*10)
-        list_dir(ROOT_DIR)
-    else:
-        print("\n", "_" * 10, "Выполняем независимую сортировку", "_" * 10)
-        sorted_each_file(ROOT_DIR)
-    if check_folder_delete == 'Y' or check_folder_delete == '':
-        print("\n", "_"*10, "Удаляем пустые папки", "_"*10)
-        delete_empty_folders(ROOT_DIR)
-    input("\nНажмите Enter, чтобы выйти...")
+    # welcome()
+    # ROOT_DIR = input("Введите полный путь до папки: ")
+    # sort_type = input("Выполнить сортировку как для 'сборников'? [y/n]: ").upper()
+    # check_folder_delete = input("Удалить пустые папки после перемещения? [Y/n]").upper()
+    # # if sort_type == 'Y':
+    # print("\n", "_"*10, "Выполняем сортировку типа 'Сборник'", "_"*10)
+    # #     list_dir(ROOT_DIR)
+    # # else:
+    # print("\n", "_" * 10, "Выполняем независимую сортировку", "_" * 10)
+    # #     sorted_each_file(ROOT_DIR)
+    # if check_folder_delete == 'Y' or check_folder_delete == '':
+    #     print("\n", "_"*10, "Удаляем пустые папки", "_"*10)
+    #     delete_empty_folders(ROOT_DIR)
+    # input("\nНажмите Enter, чтобы выйти...")
+
+    window = Tk()
+    window.title("Добро пожаловать в приложение PythonRu")
+    window.geometry('400x250')
+    menu = Menu(window)
+    new_item = Menu(menu, tearoff=0)
+    new_item.add_command(label='Новый', command=menu_1)
+    new_item.add_separator()
+    menu.add_cascade(label='Файл', menu=new_item)
+    window.config(menu=menu)
+    window.mainloop()
 
