@@ -2,10 +2,11 @@
 
 '''
     Для создания .exe файла была использована следующая команда:
-        pyinstaller --onedir --onefile --name=Music_Sorted MS.py
+        pyinstaller --onedir --onefile --icon="Имя иконки.ico" --noconsole --name=Music_Sorted_gui MS_gui.py
 '''
 
 import os
+import sys
 import mutagen.flac
 import mutagen.mp3
 import mutagen
@@ -19,11 +20,6 @@ if os.name == "nt":     # Если ОС - Windows
     SL = "\\"
 else:                   # Если ОС - Unix/Linux
     SL = "/"
-
-
-def welcome():
-    print("_________________Music Sorted_________________"
-          "")
 
 
 def delete_empty_folders(path):
@@ -355,14 +351,14 @@ class Directory(object):
 def open_folder():
     global row, viewed_directories, file_name
     file_name = fd.askdirectory()                           # Открываем диалоговое окно
-    print(f"{file_name}: file_name")
+    # print(f"{file_name}: file_name")
     if file_name:                                           # Если папка была выбрана, то...
         for item in viewed_directories:                         # ...листаем уже выбранные директории
             if file_name == item.label["text"]:                     # Если такая директория уже добавлена, то...
                 break                                                   # ...пропуск
         else:                                                   # Если нет такой директории, то...
             viewed_directories.append(Directory())              # Вывод на окно
-            print(viewed_directories)
+            # print(viewed_directories)
             row += 1                                            # Переход на след. строку
 
 
@@ -371,7 +367,7 @@ def about_program():
 
 
 if __name__ == "__main__":
-    # welcome()
+
     # ROOT_DIR = input("Введите полный путь до папки: ")
     # sort_type = input("Выполнить сортировку как для 'сборников'? [y/n]: ").upper()
     # check_folder_delete = input("Удалить пустые папки после перемещения? [Y/n]").upper()
@@ -394,7 +390,7 @@ if __name__ == "__main__":
     item_1 = Menu(menu, tearoff=0)
     item_1.add_command(label='Выбрать папку', command=open_folder)
     item_1.add_separator()
-    item_1.add_command(label='Выход', command=exit)
+    item_1.add_command(label='Выход', command=sys.exit)
     menu.add_cascade(label='Сортировка', menu=item_1)
 
     item_2 = Menu(menu, tearoff=0)
