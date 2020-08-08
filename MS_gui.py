@@ -12,6 +12,8 @@ import mutagen
 from re import findall
 from tkinter import *
 from tkinter import filedialog as fd
+from tkinter.messagebox import *
+from tkinter import ttk
 
 if os.name == "nt":     # Если ОС - Windows
     SL = "\\"
@@ -311,23 +313,61 @@ def replace_file_by_tags(path, track, artist, year, album, tab):
     return '', '', ''
 
 
-# -----------------------------------------------------СТАРТ------------------------------------------------------------
+# ----------------------------------------------------- GUI ------------------------------------------------------------
+
+row = 1
+directories_list = []
+viewed_directories = []
 
 
-def menu_1():
-    menu = Menu(window)
-    new_item = Menu(menu, tearoff=0)
-    new_item.add_command(label='Новый')
-    new_item.add_separator()
-    new_item.add_command(label='Изменить')
-    menu.add_cascade(label='Файл', menu=new_item)
-    window.config(menu=menu)
-    window.mainloop()
+class Directory(object):
+    def __init__(self):
+        self.button = Button(tab1,
+                             text=" X ",
+                             activeforeground='red',
+                             relief="groove",
+                             bd=1,
+                             command=self.delete)
+        self.label = Label(tab1, text=file_name)
+        self.button.grid(column=0, row=row, sticky=W)
+        self.label.grid(column=1, row=row, sticky=W)
+
+    def delete(self):
+        global viewed_directories
+        self.button.destroy()                                       # Удаляем кнопку
+        self.label.destroy()                                        # Удаляем текст
+        for position, elem in enumerate(viewed_directories):        # Проходимся по списку
+            # print(position, elem)
+            if elem == self:                                        # Если нашли текущий елемент, то...
+                # print("TRUE")
+                viewed_directories.pop(position)                        # ...удаляем по индексу
+        # print(viewed_directories)
+        self.reshow()                                               # Перерисовываем список объектов
+
+    def reshow(self):
+        global viewed_directories, row
+        for position, elem in enumerate(viewed_directories, 1):
+            elem.button.grid(column=0, row=position, sticky=W)
+            elem.label.grid(column=1, row=position, sticky=W)
+        row = len(viewed_directories) + 1
 
 
 def open_folder():
-    file_name = fd.askopenfilename()
-    
+    global row, viewed_directories, file_name
+    file_name = fd.askdirectory()                           # Открываем диалоговое окно
+    print(f"{file_name}: file_name")
+    if file_name:                                           # Если папка была выбрана, то...
+        for item in viewed_directories:                         # ...листаем уже выбранные директории
+            if file_name == item.label["text"]:                     # Если такая директория уже добавлена, то...
+                break                                                   # ...пропуск
+        else:                                                   # Если нет такой директории, то...
+            viewed_directories.append(Directory())              # Вывод на окно
+            print(viewed_directories)
+            row += 1                                            # Переход на след. строку
+
+
+def about_program():
+    showinfo("О программе", "Программа для сортировки музыкальных файлов по их тегам")
 
 
 if __name__ == "__main__":
@@ -347,13 +387,28 @@ if __name__ == "__main__":
     # input("\nНажмите Enter, чтобы выйти...")
 
     window = Tk()
-    window.title("Добро пожаловать в приложение PythonRu")
-    window.geometry('400x250')
+    window.title("Music sorted")
+    window.geometry('700x250')
     menu = Menu(window)
-    new_item = Menu(menu, tearoff=0)
-    new_item.add_command(label='Новый', command=menu_1)
-    new_item.add_separator()
-    menu.add_cascade(label='Файл', menu=new_item)
+
+    item_1 = Menu(menu, tearoff=0)
+    item_1.add_command(label='Выбрать папку', command=open_folder)
+    item_1.add_separator()
+    item_1.add_command(label='Выход', command=exit)
+    menu.add_cascade(label='Сортировка', menu=item_1)
+
+    item_2 = Menu(menu, tearoff=0)
+    item_2.add_command(label='О программе', command=about_program)
+    menu.add_cascade(label='Информация', menu=item_2)
+
     window.config(menu=menu)
+
+    tab_control = ttk.Notebook(window)
+    tab1 = ttk.Frame(tab_control)
+    tab2 = ttk.Frame(tab_control)
+    tab_control.add(tab1, text='Директории')
+    tab_control.add(tab2, text='Статус')
+    tab_control.pack(expand=1, fill='both')
+
     window.mainloop()
 
