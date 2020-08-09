@@ -2,7 +2,7 @@
 
 '''
     Для создания .exe файла была использована следующая команда:
-        pyinstaller --onedir --onefile --icon="Имя иконки.ico" --noconsole --name=Music_Sorted_gui MS_gui.py
+        pyinstaller --onedir --onefile --icon="music_sorted_icon.ico" --noconsole --name=Music_Sorted_gui MS_gui.py
 '''
 
 import os
@@ -13,7 +13,6 @@ import mutagen
 from re import findall
 from tkinter import *
 from tkinter import filedialog as fd
-from tkinter.messagebox import *
 from tkinter import ttk
 
 if os.name == "nt":     # Если ОС - Windows
@@ -312,58 +311,123 @@ def replace_file_by_tags(path, track, artist, year, album, tab):
 # ----------------------------------------------------- GUI ------------------------------------------------------------
 
 row = 1
-directories_list = []
-viewed_directories = []
+directories_in, directories_out = [], []
+directory_in = ''
 
 
 class Directory(object):
     def __init__(self):
-        self.button = Button(tab1,
-                             text=" X ",
-                             activeforeground='red',
-                             relief="groove",
-                             bd=1,
-                             command=self.delete)
-        self.label = Label(tab1, text=file_name)
-        self.button.grid(column=0, row=row, sticky=W)
-        self.label.grid(column=1, row=row, sticky=W)
+        self.label_in_dir = Label(tab1, text=directory_in)
+        self.button_del_line = Button(tab1,
+                                      text=" X ",
+                                      activeforeground='red',
+                                      relief="groove",
+                                      bd=1,
+                                      command=self.delete)
+        self.button_set_out_dir = Button(tab1,
+                                         text=" ▷ ",
+                                         relief="groove",
+                                         bd=1,
+                                         command=self.result_dir)
+        self.label_out_dir = Label(tab1, text='')
+        self.button_same_out_dir_for_all = Button(tab1,
+                                                  text="",
+                                                  relief="groove",
+                                                  bd=1,
+                                                  command=self.same_out_dir_for_all)
+        self.button_set_out_dir.grid(column=2, row=row, sticky=W)
+        self.button_del_line.grid(column=1, row=row, sticky=W)
+        self.label_in_dir.grid(column=0, row=row, sticky=W)
+        self.redraw()
 
     def delete(self):
-        global viewed_directories
-        self.button.destroy()                                       # Удаляем кнопку
-        self.label.destroy()                                        # Удаляем текст
-        for position, elem in enumerate(viewed_directories):        # Проходимся по списку
-            # print(position, elem)
+        global directories_in
+        self.button_del_line.destroy()
+        self.button_set_out_dir.destroy()
+        self.label_in_dir.destroy()
+        self.label_out_dir.destroy()
+        self.button_same_out_dir_for_all.destroy()
+        for position, elem in enumerate(directories_in):        # Проходимся по списку
             if elem == self:                                        # Если нашли текущий елемент, то...
-                # print("TRUE")
-                viewed_directories.pop(position)                        # ...удаляем по индексу
-        # print(viewed_directories)
-        self.reshow()                                               # Перерисовываем список объектов
+                directories_in.pop(position)                            # ...удаляем по индексу
+        self.redraw()                                           # Перерисовываем список объектов
 
-    def reshow(self):
-        global viewed_directories, row
-        for position, elem in enumerate(viewed_directories, 1):
-            elem.button.grid(column=0, row=position, sticky=W)
-            elem.label.grid(column=1, row=position, sticky=W)
-        row = len(viewed_directories) + 1
+    def redraw(self):
+        global directories_in, row
+        for position, elem in enumerate(directories_in, 1):
+            elem.button_set_out_dir.grid(column=2, row=position, sticky=W)
+            elem.button_del_line.grid(column=1, row=position, sticky=W)
+            elem.label_in_dir.grid(column=0, row=position, sticky=W)
+            elem.label_out_dir.grid(column=3, row=position, sticky=W)
+            if elem.label_out_dir["text"]:
+                if len(directories_in) == 1:
+                    elem.button_same_out_dir_for_all.grid_remove()
+                elif position == 1:
+                    elem.button_same_out_dir_for_all["text"] = " ↓ "
+                    elem.button_same_out_dir_for_all.grid(column=4, row=position, sticky=W)
+                elif position == len(directories_in):
+                    elem.button_same_out_dir_for_all["text"] = " ↑ "
+                    elem.button_same_out_dir_for_all.grid(column=4, row=position, sticky=W)
+                else:
+                    elem.button_same_out_dir_for_all["text"] = " ↕ "
+                    elem.button_same_out_dir_for_all.grid(column=4, row=position, sticky=W)
+            else:
+                elem.button_same_out_dir_for_all.grid_remove()
+        row = len(directories_in) + 1
 
+    def result_dir(self):
+        global directories_out
+        directory_out = fd.askdirectory()                           # Открываем диалоговое окно
+        if directory_out:                                           # Если папка была выбрана, то...
+            if self.label_out_dir["text"]:                              # Если уже существовал путь, то...
+                self.label_out_dir.destroy()                                # ...обнуляем
+            directories_out.append(directory_out)                       # ...добавляем в список
+            self.label_out_dir = Label(tab1, text=directory_out)
+            self.label_out_dir.grid(column=3, row=self.button_del_line.grid_info().get("row"), sticky=W)
+            self.redraw()
+
+    def same_out_dir_for_all(self):
+        global directories_in
+        for elem in directories_in:
+            elem.label_out_dir["text"] = self.label_out_dir["text"]
 
 def open_folder():
-    global row, viewed_directories, file_name
-    file_name = fd.askdirectory()                           # Открываем диалоговое окно
-    # print(f"{file_name}: file_name")
-    if file_name:                                           # Если папка была выбрана, то...
-        for item in viewed_directories:                         # ...листаем уже выбранные директории
-            if file_name == item.label["text"]:                     # Если такая директория уже добавлена, то...
+    global row, directories_in, directory_in
+    directory_in = fd.askdirectory()                        # Открываем диалоговое окно
+    if directory_in:                                        # Если папка была выбрана, то...
+        for item in directories_in:                         # ...листаем уже выбранные директории
+            if directory_in == item.label_in_dir["text"]:       # Если такая директория уже добавлена, то...
+                break                                               # ...пропуск
+        else:                                                   # Если нет такой директории, то...
+            obj = Directory()
+            directories_in.append(obj)                          # Вывод на окно
+            obj.redraw()
+            row += 1                                            # Переход на след. строку
+
+
+def set_out_dir():
+    global row, directories_in, directory_out
+    directory_out = fd.askdirectory()                       # Открываем диалоговое окно
+    if directory_in:                                        # Если папка была выбрана, то...
+        for item in directories_in:                         # ...листаем уже выбранные директории
+            if directory_out == item.label_in_dir["text"]:                     # Если такая директория уже добавлена, то...
                 break                                                   # ...пропуск
         else:                                                   # Если нет такой директории, то...
-            viewed_directories.append(Directory())              # Вывод на окно
-            # print(viewed_directories)
+            directories_in.append(Directory())
             row += 1                                            # Переход на след. строку
 
 
 def about_program():
-    showinfo("О программе", "Программа для сортировки музыкальных файлов по их тегам")
+    global window_about_program, window_height, window_width
+    if window_about_program:
+        window_about_program.destroy()              # Удаляем окно, если оно уже существовало
+    window_about_program = Toplevel()
+    window_about_program.title("О программе")
+    window_about_program.geometry(f'600x200+{window_width // 2 - 300}+{window_height // 2 - 100}')
+    window_about_program.resizable(False, False)
+    Label(window_about_program, text="Music Sorted\n"
+                                     "Программа для сортировки музыкальных файлов по их тегам").pack(expand=1)
+    Label(window_about_program, text="https://github.com/ig-rudenko/music_sorted")
 
 
 if __name__ == "__main__":
@@ -382,20 +446,28 @@ if __name__ == "__main__":
     #     delete_empty_folders(ROOT_DIR)
     # input("\nНажмите Enter, чтобы выйти...")
 
+    window_about_program = ''
+
     window = Tk()
     window.title("Music sorted")
-    window.geometry('700x250')
+    window_width = window.winfo_screenwidth()       # ширина экрана
+    window_height = window.winfo_screenheight()     # высота экрана
+    window.geometry(f'800x300+{window_width // 2 - 400}+{window_height // 2 - 150}')    # Расположение по центру экрана
     menu = Menu(window)
 
     item_1 = Menu(menu, tearoff=0)
+    menu.add_cascade(label='Сортировка', menu=item_1)
     item_1.add_command(label='Выбрать папку', command=open_folder)
     item_1.add_separator()
     item_1.add_command(label='Выход', command=sys.exit)
-    menu.add_cascade(label='Сортировка', menu=item_1)
 
     item_2 = Menu(menu, tearoff=0)
-    item_2.add_command(label='О программе', command=about_program)
-    menu.add_cascade(label='Информация', menu=item_2)
+    menu.add_cascade(label='Сканирование', menu=item_2)
+    item_2.add_command(label='Полное сканирование', command=open_folder)
+
+    item_3 = Menu(menu, tearoff=0)
+    menu.add_cascade(label='Информация', menu=item_3)
+    item_3.add_command(label='О программе', command=about_program)
 
     window.config(menu=menu)
 
@@ -405,6 +477,9 @@ if __name__ == "__main__":
     tab_control.add(tab1, text='Директории')
     tab_control.add(tab2, text='Статус')
     tab_control.pack(expand=1, fill='both')
+
+    label_tab2 = Label(tab2, text="Нет данных")
+    label_tab2.grid(column=1, row=row, sticky=W)
 
     window.mainloop()
 
