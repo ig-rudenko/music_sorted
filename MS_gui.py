@@ -6,14 +6,14 @@
 '''
 
 import os
-import sys
 import mutagen.flac
 import mutagen.mp3
 import mutagen
 from re import findall
 from tkinter import *
-from tkinter import filedialog as fd
+from tkinter import filedialog
 from tkinter import ttk
+from tkinter import messagebox
 
 if os.name == "nt":     # Если ОС - Windows
     SL = "\\"
@@ -42,11 +42,12 @@ def delete_empty_folders(path):
 # ---------------------------------------------СОРТИРОВКА "СБОРНИК"-----------------------------------------------------
 
 
-def list_dir(path):
+def list_dir(root_dir, path):
     '''
     Проверяет, является ли текущая директория промежуточной или конечной (альбомом)
     Если так, то определяет тип: альбом или компиляция
-    :param path: полный путь до директории
+    :param root_dir:    Корневая директория
+    :param path:        Полный путь до директории
     :return:
     '''
     dir_list = os.listdir(path)
@@ -69,7 +70,7 @@ def list_dir(path):
             else:
                 if album_name.upper() != album_flac.upper():   # Если "Альбомы" различаются, то...
                     print("~COMPILATION~")
-                    remove_files_from_dir(path, False)             # ...это компиляция
+                    remove_files_from_dir(root_dir, path, False)             # ...это компиляция
                     break                                          # выход из цикла.
 
         if str(findall(r".+\.(\S+)", element)) == "['mp3']":
@@ -86,26 +87,27 @@ def list_dir(path):
             else:
                 if album_name.upper() != album_mp3.upper():    # Если "Альбомы" различаются, то...
                     print("~COMPILATION~")
-                    remove_files_from_dir(path, False)             # ...это компиляция
+                    remove_files_from_dir(root_dir, path, False)             # ...это компиляция
                     break                                          # выход из цикла.
 
     else:
         if album_name:
             print(f"~ALBUM~\n{album_name}\n")
-            remove_files_from_dir(path, True, album_name)    # Данная папка это "Альбом"
+            remove_files_from_dir(root_dir, path, True, album_name)    # Данная папка это "Альбом"
 
     for dir_ in dir_list:
         if os.path.isdir(f"{path}{SL}{dir_}"):                     # Если это папка, то...
             print(f"\nDIR: {dir_}")
-            list_dir(path=f"{path}{SL}{dir_}")                         # ...рекурсия
+            list_dir(root_dir, path=f"{path}{SL}{dir_}")                         # ...рекурсия
 
 
-def remove_files_from_dir(path, is_album, album_name=''):
+def remove_files_from_dir(root_dir, path, is_album, album_name=''):
     '''
     Перемещает все файлы из директории 'path' в зависимости от 'is_album'
-    :param path: полный путь до директории
-    :param is_album: Альбом: 'True' или Компиляция: 'False'
-    :param album_name: Название альбома, по умолчанию пустая строка ''
+    :param root_dir:    Корневая директория
+    :param path:        Полный путь до директории
+    :param is_album:    Альбом: 'True' или Компиляция: 'False'
+    :param album_name:  Название альбома, по умолчанию пустая строка ''
     :return:
     '''
 
@@ -151,18 +153,18 @@ def remove_files_from_dir(path, is_album, album_name=''):
         # Если теги не найдены, то это компиляция
         else:
             try:
-                if not os.path.exists(f"{ROOT_DIR}{SL}Compilations"):  # Если нет папки "Compilations", то...
-                    os.makedirs(f"{ROOT_DIR}{SL}Compilations")  # ...создаем
+                if not os.path.exists(f"{root_dir}{SL}Compilations"):  # Если нет папки "Compilations", то...
+                    os.makedirs(f"{root_dir}{SL}Compilations")  # ...создаем
                 *_, curr_dir = str(path).split(SL)  # Вытягиваем название папки с музыкой
-                os.replace(path, f'{ROOT_DIR}{SL}Compilations{SL}{curr_dir}')  # Перемещаем папку с музыкой в Compilations
-                print(f"Была создана компиляция {curr_dir} в папке {ROOT_DIR}{SL}Compilations")
+                os.replace(path, f'{root_dir}{SL}Compilations{SL}{curr_dir}')  # Перемещаем папку с музыкой в Compilations
+                print(f"Была создана компиляция {curr_dir} в папке {root_dir}{SL}Compilations")
                 return 0
             except Exception as e:
                 print(e)
 
         # Перемещаем все файлы в папку альбома
         try:
-            end_dir = f"{ROOT_DIR}{SL}Artist_Album{SL}{artist}{SL}[{year}] {album_name}"
+            end_dir = f"{root_dir}{SL}Artist_Album{SL}{artist}{SL}[{year}] {album_name}"
             if not os.path.exists(end_dir):                                 # Если папка с альбомом НЕ создана, то...
                 os.makedirs(end_dir)                                            # ...создаем
                 print(f"Была создана папка: {end_dir}")
@@ -177,33 +179,27 @@ def remove_files_from_dir(path, is_album, album_name=''):
     # КОМПИЛЯЦИЯ
     else:
         try:
-            if not os.path.exists(f"{ROOT_DIR}{SL}Compilations"):               # Если нет папки "Compilations", то...
-                os.makedirs(f"{ROOT_DIR}{SL}Compilations")                          # ...создаем
+            if not os.path.exists(f"{root_dir}{SL}Compilations"):               # Если нет папки "Compilations", то...
+                os.makedirs(f"{root_dir}{SL}Compilations")                          # ...создаем
             *_, curr_dir = str(path).split(SL)                                  # Вытягиваем название папки с музыкой
-            os.replace(path, f'{ROOT_DIR}{SL}Compilations{SL}{curr_dir}')       # Перемещаем папку с музыкой в Compilations
-            print(f"Была создана компиляция: \"{curr_dir}\" в папке {ROOT_DIR}{SL}Compilations")
+            os.replace(path, f'{root_dir}{SL}Compilations{SL}{curr_dir}')       # Перемещаем папку с музыкой в Compilations
+            print(f"Была создана компиляция: \"{curr_dir}\" в папке {root_dir}{SL}Compilations")
             return 0
         except Exception as e:
             print(e)
-
-    # Удаляем пустую папку
-    # try:
-    #     os.rmdir(path)
-    # except Exception:
-    #     print(f"В папке {path} остались файлы")
 
 
 # ---------------------------------------------НЕЗАВИСИМАЯ СОРТИРОВКА---------------------------------------------------
 
 
-def sorted_each_file(path, tab=4):
+def sorted_each_file(root_dir, path, tab=4):
     '''
     Функция перебирает все файлы .flac и .mp3 в папке, которая ей передана и
     в зависимости от тегов перемещает в нужные папки
-
-    :param path:    полный путь до папки
-    :param tab:     количество отступов
-    :return:        ничего
+    :param root_dir:    Корневая директория
+    :param path:        Полный путь до папки
+    :param tab:         Количество отступов
+    :return:            Ничего
     '''
     year = ''
     artist = ''
@@ -230,7 +226,7 @@ def sorted_each_file(path, tab=4):
                 artist = artist_flac.replace(":", " ").replace("\\", " ").replace("/", " ").replace(
                     "*", " ").replace("?", " ").replace("\"", " ").replace("<", " ").replace(">", " ").replace("|", " ").strip()
 
-                year, artist, album = replace_file_by_tags(path, track, artist, year, album, 2 * tab)
+                year, artist, album = replace_file_by_tags(root_dir, path, track, artist, year, album, 2 * tab)
 
             # MP3
             if str(findall(r".+\.(\S+)", track)) == "['mp3']":
@@ -247,31 +243,31 @@ def sorted_each_file(path, tab=4):
                 artist = artist_mp3.replace(":", " ").replace("\\", " ").replace("/", " ").replace(
                     "*", " ").replace("?", " ").replace("\"", " ").replace("<", " ").replace(">", " ").replace("|", " ").strip()
 
-                year, artist, album = replace_file_by_tags(path, track, artist, year, album, 2 * tab)
+                year, artist, album = replace_file_by_tags(root_dir, path, track, artist, year, album, 2 * tab)
 
             if os.path.isdir(f"{path}{SL}{track}"):                     # Если это папка, то...
                 print("-"*(tab-4)+f"DIR: {track}")
-                sorted_each_file(path=f"{path}{SL}{track}", tab=tab+4)          # ...рекурсия
+                sorted_each_file(root_dir, path=f"{path}{SL}{track}", tab=tab + 4)          # ...рекурсия
 
         except Exception as e:
             print(" "*tab+str(e))
 
 
-def replace_file_by_tags(path, track, artist, year, album, tab):
+def replace_file_by_tags(root_dir, path, track, artist, year, album, tab):
     '''
     Функция анализирует теги и перемещает файлы в соответствующие папки
-
-    :param path:    полный путь до папки с файлами
-    :param track:   название файла в папке
-    :param artist:  тег с именем артиста
-    :param year:    тег с годом выпуска альбома
-    :param album:   тег с названием альбома
-    :param tab:     регулирует количество отступов
-    :return:        функция возвращает пустые теги '', '', ''
+    :param root_dir:    Корневая директория
+    :param path:        Полный путь до папки с файлами
+    :param track:       Название файла в папке
+    :param artist:      Тег с именем артиста
+    :param year:        Тег с годом выпуска альбома
+    :param album:       Тег с названием альбома
+    :param tab:         Регулирует количество отступов
+    :return:            Функция возвращает пустые теги '', '', ''
     '''
     # Если все необходимые теги найдены
     if year and artist and album:
-        end_dir = f"{ROOT_DIR}{SL}Artists{SL}{artist}{SL}[{year}] {album}"
+        end_dir = f"{root_dir}{SL}Artists{SL}{artist}{SL}[{year}] {album}"
         if not os.path.exists(end_dir):  # Если папка с альбомом НЕ создана, то...
             os.makedirs(end_dir)  # ...создаем
             print(" "*tab+f"Была создана папка: {end_dir}")
@@ -280,7 +276,7 @@ def replace_file_by_tags(path, track, artist, year, album, tab):
 
     # Если нет только года выпуска альбома
     elif artist and album and not year:
-        end_dir = f"{ROOT_DIR}{SL}Artists{SL}{artist}{SL}{album}"
+        end_dir = f"{root_dir}{SL}Artists{SL}{artist}{SL}{album}"
         if not os.path.exists(end_dir):  # Если папка с альбомом НЕ создана, то...
             os.makedirs(end_dir)  # ...создаем
             print(" "*tab+f"Была создана папка: {end_dir}")
@@ -289,7 +285,7 @@ def replace_file_by_tags(path, track, artist, year, album, tab):
 
     # Если есть только артист
     elif artist and not album:
-        end_dir = f"{ROOT_DIR}{SL}Artists{SL}{artist}"
+        end_dir = f"{root_dir}{SL}Artists{SL}{artist}"
         if not os.path.exists(end_dir):  # Если папка с альбомом НЕ создана, то...
             os.makedirs(end_dir)  # ...создаем
             print(" "*tab+f"Была создана папка: {end_dir}")
@@ -298,7 +294,7 @@ def replace_file_by_tags(path, track, artist, year, album, tab):
 
     # Если тегов нет, то помещаем в папку "Unknowns"
     else:
-        end_dir = f"{ROOT_DIR}{SL}Unknowns"
+        end_dir = f"{root_dir}{SL}Unknowns"
         if not os.path.exists(end_dir):  # Если папка с альбомом НЕ создана, то...
             os.makedirs(end_dir)  # ...создаем
             print(" "*tab+f"Была создана папка: {end_dir}")
@@ -318,27 +314,39 @@ directory_in = ''
 class Directory(object):
     def __init__(self):
         self.label_in_dir = Label(tab1, text=directory_in)
+        self.label_in_dir.grid(column=0, row=row, sticky=W)
+
         self.button_del_line = Button(tab1,
                                       text=" X ",
                                       activeforeground='red',
                                       relief="groove",
                                       bd=1,
                                       command=self.delete)
+        self.button_del_line.grid(column=1, row=row, sticky=W)
+
         self.button_set_out_dir = Button(tab1,
                                          text=" ▷ ",
                                          relief="groove",
                                          bd=1,
                                          command=self.result_dir)
+        self.button_set_out_dir.grid(column=2, row=row, sticky=W)
+
         self.label_out_dir = Label(tab1, text='')
         self.button_same_out_dir_for_all = Button(tab1,
                                                   text="",
                                                   relief="groove",
                                                   bd=1,
                                                   command=self.same_out_dir_for_all)
-        self.button_set_out_dir.grid(column=2, row=row, sticky=W)
-        self.button_del_line.grid(column=1, row=row, sticky=W)
-        self.label_in_dir.grid(column=0, row=row, sticky=W)
+        self.combo_sort_type = ttk.Combobox(tab1, values=("Сборник", "Независимая"))
+        self.combo_sort_type.grid(column=5, row=row, sticky=W)
+        self.combo_sort_type.current(0)
         self.redraw()
+
+    def table_head(self):
+        Label(tab1, text="    Директория сортировки    ").grid(column=0, row=0, sticky=N)
+        Label(tab1, text="    Директория сохранения    ").grid(column=3, row=0, sticky=N)
+        Label(tab1, text="    Применить для всех    ").grid(column=4, row=0, sticky=N)
+        Label(tab1, text="    Тип сортировки    ").grid(column=5, row=0, sticky=N)
 
     def delete(self):
         global directories_in
@@ -347,6 +355,7 @@ class Directory(object):
         self.label_in_dir.destroy()
         self.label_out_dir.destroy()
         self.button_same_out_dir_for_all.destroy()
+        self.combo_sort_type.destroy()
         for position, elem in enumerate(directories_in):        # Проходимся по списку
             if elem == self:                                        # Если нашли текущий елемент, то...
                 directories_in.pop(position)                            # ...удаляем по индексу
@@ -359,6 +368,8 @@ class Directory(object):
             elem.button_del_line.grid(column=1, row=position, sticky=W)
             elem.label_in_dir.grid(column=0, row=position, sticky=W)
             elem.label_out_dir.grid(column=3, row=position, sticky=W)
+            elem.combo_sort_type.grid(column=5, row=position, sticky=W)
+
             if elem.label_out_dir["text"]:
                 if len(directories_in) == 1:
                     elem.button_same_out_dir_for_all.grid_remove()
@@ -373,11 +384,12 @@ class Directory(object):
                     elem.button_same_out_dir_for_all.grid(column=4, row=position, sticky=W)
             else:
                 elem.button_same_out_dir_for_all.grid_remove()
+
         row = len(directories_in) + 1
 
     def result_dir(self):
         global directories_out
-        directory_out = fd.askdirectory()                           # Открываем диалоговое окно
+        directory_out = filedialog.askdirectory()                   # Открываем диалоговое окно
         if directory_out:                                           # Если папка была выбрана, то...
             if self.label_out_dir["text"]:                              # Если уже существовал путь, то...
                 self.label_out_dir.destroy()                                # ...обнуляем
@@ -390,10 +402,12 @@ class Directory(object):
         global directories_in
         for elem in directories_in:
             elem.label_out_dir["text"] = self.label_out_dir["text"]
+        self.redraw()
+
 
 def open_folder():
     global row, directories_in, directory_in
-    directory_in = fd.askdirectory()                        # Открываем диалоговое окно
+    directory_in = filedialog.askdirectory()                # Открываем диалоговое окно
     if directory_in:                                        # Если папка была выбрана, то...
         for item in directories_in:                         # ...листаем уже выбранные директории
             if directory_in == item.label_in_dir["text"]:       # Если такая директория уже добавлена, то...
@@ -401,26 +415,27 @@ def open_folder():
         else:                                                   # Если нет такой директории, то...
             obj = Directory()
             directories_in.append(obj)                          # Вывод на окно
+            obj.table_head()
             obj.redraw()
             row += 1                                            # Переход на след. строку
 
 
 def set_out_dir():
-    global row, directories_in, directory_out
-    directory_out = fd.askdirectory()                       # Открываем диалоговое окно
+    global row, directories_in
+    directory_out = filedialog.askdirectory()               # Открываем диалоговое окно
     if directory_in:                                        # Если папка была выбрана, то...
-        for item in directories_in:                         # ...листаем уже выбранные директории
-            if directory_out == item.label_in_dir["text"]:                     # Если такая директория уже добавлена, то...
+        for item in directories_in:                             # ...листаем уже выбранные директории
+            if directory_out == item.label_in_dir["text"]:          # Если такая директория уже добавлена, то...
                 break                                                   # ...пропуск
         else:                                                   # Если нет такой директории, то...
             directories_in.append(Directory())
-            row += 1                                            # Переход на след. строку
+            row += 1                                                # Переход на след. строку
 
 
 def about_program():
     global window_about_program, window_height, window_width
     if window_about_program:
-        window_about_program.destroy()              # Удаляем окно, если оно уже существовало
+        window_about_program.destroy()                          # Удаляем окно, если оно уже существовало
     window_about_program = Toplevel()
     window_about_program.title("О программе")
     window_about_program.geometry(f'600x200+{window_width // 2 - 300}+{window_height // 2 - 100}')
@@ -428,6 +443,15 @@ def about_program():
     Label(window_about_program, text="Music Sorted\n"
                                      "Программа для сортировки музыкальных файлов по их тегам").pack(expand=1)
     Label(window_about_program, text="https://github.com/ig-rudenko/music_sorted")
+
+
+def start_sort():
+    for iteration in directories_in:
+        if iteration.label_out_dir["text"]:
+            pass
+        else:
+            messagebox.showerror("", "Укажите для всех директорий папку для переноса")
+            break
 
 
 if __name__ == "__main__":
@@ -457,6 +481,7 @@ if __name__ == "__main__":
 
     item_1 = Menu(menu, tearoff=0)
     menu.add_cascade(label='Сортировка', menu=item_1)
+    item_1.add_command(label='Выполнить сортировку', command=start_sort)
     item_1.add_command(label='Выбрать папку', command=open_folder)
     item_1.add_separator()
     item_1.add_command(label='Выход', command=sys.exit)
