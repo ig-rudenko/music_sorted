@@ -423,7 +423,6 @@ class Directory(object):
         self.redraw()
 
 
-
 def open_folder():
     '''
             Выбор папки для сортировки т.е. создание объекта
@@ -465,6 +464,13 @@ def start_sort():
         else:
             messagebox.showerror("", "Укажите для всех директорий папку для переноса")
             break
+
+
+def mass_scan():
+    if os.name == "nt":         # Если ОС - Windows
+        SL = "\\"
+    else:                       # Если ОС - Unix/Linux
+        SL = "/"
 
 
 if __name__ == "__main__":
