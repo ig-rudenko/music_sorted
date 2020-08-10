@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 '''
@@ -306,12 +307,17 @@ def replace_file_by_tags(root_dir, path, track, artist, year, album, tab):
 
 # ----------------------------------------------------- GUI ------------------------------------------------------------
 
-row = 1
+row = 1     # счетчик строк
 directories_in, directories_out = [], []
 directory_in = ''
 
 
 class Directory(object):
+    '''
+            Класс создает объект (строку), которая распоагается на вкладке "Директории"
+            и указывает папку, которая подлежит дальнейшей сортировке, папку для сохранения,
+            а также функциональные клавиши
+    '''
     def __init__(self):
         self.label_in_dir = Label(tab1, text=directory_in)
         self.label_in_dir.grid(column=0, row=row, sticky=W)
@@ -349,6 +355,9 @@ class Directory(object):
         Label(tab1, text="    Тип сортировки    ").grid(column=5, row=0, sticky=N)
 
     def delete(self):
+        '''
+                Удаляет строчку
+        '''
         global directories_in
         self.button_del_line.destroy()
         self.button_set_out_dir.destroy()
@@ -362,6 +371,9 @@ class Directory(object):
         self.redraw()                                           # Перерисовываем список объектов
 
     def redraw(self):
+        '''
+                Перерисовывает все элементы и переопределяет счетчик строк "row"
+        '''
         global directories_in, row
         for position, elem in enumerate(directories_in, 1):
             elem.button_set_out_dir.grid(column=2, row=position, sticky=W)
@@ -388,6 +400,9 @@ class Directory(object):
         row = len(directories_in) + 1
 
     def result_dir(self):
+        '''
+                Выбор папки сохранения для данной строчки
+        '''
         global directories_out
         directory_out = filedialog.askdirectory()                   # Открываем диалоговое окно
         if directory_out:                                           # Если папка была выбрана, то...
@@ -399,13 +414,20 @@ class Directory(object):
             self.redraw()
 
     def same_out_dir_for_all(self):
+        '''
+                Устанавливает для всех строчек папку сохранения такой, как у текущей
+        '''
         global directories_in
         for elem in directories_in:
             elem.label_out_dir["text"] = self.label_out_dir["text"]
         self.redraw()
 
 
+
 def open_folder():
+    '''
+            Выбор папки для сортировки т.е. создание объекта
+    '''
     global row, directories_in, directory_in
     directory_in = filedialog.askdirectory()                # Открываем диалоговое окно
     if directory_in:                                        # Если папка была выбрана, то...
@@ -420,22 +442,13 @@ def open_folder():
             row += 1                                            # Переход на след. строку
 
 
-def set_out_dir():
-    global row, directories_in
-    directory_out = filedialog.askdirectory()               # Открываем диалоговое окно
-    if directory_in:                                        # Если папка была выбрана, то...
-        for item in directories_in:                             # ...листаем уже выбранные директории
-            if directory_out == item.label_in_dir["text"]:          # Если такая директория уже добавлена, то...
-                break                                                   # ...пропуск
-        else:                                                   # Если нет такой директории, то...
-            directories_in.append(Directory())
-            row += 1                                                # Переход на след. строку
-
-
 def about_program():
+    '''
+            Открытие окна "О программе"
+    '''
     global window_about_program, window_height, window_width
     if window_about_program:
-        window_about_program.destroy()                          # Удаляем окно, если оно уже существовало
+        window_about_program.destroy()              # Удаляем окно, если оно уже существовало
     window_about_program = Toplevel()
     window_about_program.title("О программе")
     window_about_program.geometry(f'600x200+{window_width // 2 - 300}+{window_height // 2 - 100}')
